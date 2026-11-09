@@ -9,3 +9,10 @@
 **Hook.** A PostToolUse hook (it reacts, it doesn't prevent) matching `Edit|Write` runs `.claude/hooks/lint-edited.js`. It lints the edited `.js` file with the project's ESLint config and, on errors, exits 2 with the output so Claude fixes them immediately. I checked it against a deliberately broken file (exit 2 with the ESLint errors) and a clean one (exit 0). It also fired on every edit during the DELETE run.
 
 **Headless.** `claude -p "Using the docs MCP server, read api.md ... then run npm test ..." --allowedTools "mcp__docs__read_text_file" "Bash(npm test)"`. I allowed only one read-only MCP tool and one exact shell command, so nothing can be written or run outside that. Unallowed calls (e.g. `search_files`) were denied.
+
+## How to verify on a fresh checkout
+1. `npm install`, then open `claude` in the project folder, accept the trust dialog (project permissions are ignored until the workspace is trusted) and approve the `docs` MCP server.
+2. Server: `claude mcp list` shows `docs`; ask Claude to read `api.md` through it.
+3. Skill: ask "Add a DELETE /users/:id endpoint." without naming the skill; `new-route` fires.
+4. Command: run `/review-api main`.
+5. Hook: edit a `.js` file so it has a lint error; the PostToolUse hook reports it back to Claude.
